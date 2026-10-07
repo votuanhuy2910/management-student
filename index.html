@@ -461,6 +461,7 @@
                 K: "Nghỉ không phép",
                 T: "Đi trễ",
             };
+            const LATE_W = 0.75; // đi trễ chỉ tính 75% một buổi có mặt
             const LV = ["Tốt", "Khá", "Đạt", "Chưa đạt"];
             const today = () => new Date().toISOString().slice(0, 10);
             let S,
@@ -1166,7 +1167,9 @@
                     p,
                     k,
                     t,
-                    rate: n ? Math.round(((n - p - k) * 1000) / n) / 10 : null,
+                    rate: n
+                        ? Math.round(((n - p - k - t * (1 - LATE_W)) * 1000) / n) / 10
+                        : null,
                 };
             }
             function head(t) {
@@ -1348,7 +1351,7 @@ ${fx()}<p class="mut">Học tập xếp loại tự động theo Thông tư 22/2
                 const e = $("#asum");
                 if (!e) return;
                 const days = Object.keys(S.att).length;
-                e.innerHTML = `<h2>Tổng hợp chuyên cần (${days} buổi đã ghi nhận)</h2><div class="tw"><table><tr><th>Họ và tên</th><th class="n">Có phép</th><th class="n">Không phép</th><th class="n">Đi trễ</th><th class="n">Chuyên cần</th></tr>${S.st
+                e.innerHTML = `<h2>Tổng hợp chuyên cần (${days} buổi đã ghi nhận)</h2><p class="mut">Đi trễ được tính ${LATE_W * 100}% một buổi có mặt.</p><div class="tw"><table><tr><th>Họ và tên</th><th class="n">Có phép</th><th class="n">Không phép</th><th class="n">Đi trễ</th><th class="n">Chuyên cần</th></tr>${S.st
                     .map((s) => {
                         const a = attStat(s.id);
                         return `<tr><td>${esc(s.ten)}</td><td class="n">${a.p}</td><td class="n">${a.k}</td><td class="n">${a.t}</td><td class="n">${a.rate == null ? "—" : a.rate + "%"}</td></tr>`;
@@ -1446,7 +1449,7 @@ ${fx()}<p class="mut">Học tập xếp loại tự động theo Thông tư 22/2
                     lt = as.reduce((a, x) => a + x.t, 0),
                     kp = as.reduce((a, x) => a + x.k, 0);
                 const rate = tn
-                    ? Math.round(((tn - ab) * 1000) / tn) / 10
+                    ? Math.round(((tn - ab - lt * (1 - LATE_W)) * 1000) / tn) / 10
                     : null;
                 const so = [...mon].sort((a, b) => b[1] - a[1]);
                 const warn = S.st.filter(
@@ -1468,7 +1471,7 @@ ${fx()}<p class="mut">Học tập xếp loại tự động theo Thông tư 22/2
 <div class="grid2"><div><h3>Học tập (${hlc.reduce((a, x) => a + x[1], 0)}/${n} em đủ điểm)</h3>${bars(hlc, n)}<h3>Rèn luyện</h3>${bars(hkc, n)}</div>
 <div><h3>Chuyên cần</h3>${bars(
                     [
-                        ["Có mặt đủ", tn - ab],
+                        ["Có mặt đủ", tn - ab - lt],
                         ["Nghỉ có phép", ab - kp],
                         ["Nghỉ không phép", kp],
                         ["Đi trễ", lt],
