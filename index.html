@@ -367,6 +367,16 @@
             .o-info{background:var(--info-bg);color:var(--info);border-color:var(--info)}
             .o-pink{background:var(--pink-bg);color:var(--pink);border-color:var(--pink)}
             @media print{:root,:root[data-theme="dark"],:root:not([data-theme="light"]){--bg:#fff;--card:#fff;--ink:#000;--mut:#333;--line:#999;--soft:#eee}}
+            .pr{display:none}
+            @media print{
+                .scp{overflow:visible!important}
+                .scp table{font-size:12px}
+                .scp th,.scp td{white-space:normal}
+                .scp tr{break-inside:avoid}
+                .scp input{display:none!important}
+                .scp .pr{display:inline}
+                .sg,.tag,select.opt{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+            }
         </style>
         <script>(function(){try{var t=localStorage.getItem("scn-theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}})()</script>
     </head>
@@ -1006,6 +1016,8 @@
             function cc(el) {
                 const v = el.value.split(/[;\s]+|,(?=\s|\d{1,2}(?:[,;]|$))/).map((x) => parseFloat(x.replace(",", "."))).filter((x) => !isNaN(x));
                 el.className = scc(avg(v));
+                const n = el.nextElementSibling;
+                if (n && n.classList.contains("pr")) n.textContent = el.value;
             }
             document.addEventListener("change", (e) => {
                 const t = e.target;
@@ -1028,6 +1040,14 @@
                 const ok = V.smk == k + "|" + m;
                 return `<details class="noprint" style="margin-top:12px"${ok ? " open" : ""}><summary class="mut">Nhập điểm từ file Excel (.xlsx)</summary><p class="mut">Áp dụng cho môn <b>${esc(S.subj[m])}</b> – ${k == "HK1" ? "Học kỳ 1" : "Học kỳ 2"}. Dòng tiêu đề gồm: Mã (hoặc Họ và tên), Điểm TX (một hoặc nhiều cột bắt đầu bằng "TX"; nhiều điểm trong một ô cách nhau dấu phẩy), Giữa kỳ, Cuối kỳ. Ô trống sẽ giữ nguyên điểm cũ.</p><button class="b g" onclick="tplScore()">Tải file mẫu</button> <input type="file" accept=".xlsx,.xls" onchange="impScore(this)"><p class="mut">${ok ? V.sm || "" : ""}</p></details>`;
             };
+            function prD() {
+                const st = document.createElement("style");
+                st.textContent = "@page{size:A4 " + (V.mode == "tong" ? "landscape" : "portrait") + ";margin:12mm}";
+                document.head.appendChild(st);
+                const done = () => { st.remove(); removeEventListener("afterprint", done); };
+                addEventListener("afterprint", done);
+                window.print();
+            }
             function tplScore() {
                 if (!window.XLSX) return;
                 const k = V.hk, m = V.mon;
@@ -1358,23 +1378,23 @@ ${S.st.map((s, i) => `<tr><td class="n">${i + 1}</td><td>${esc(s.ma)}</td><td>${
                             `<option value="${v}"${k == v ? " selected" : ""}>${l}</option>`,
                     )
                     .join("")}</select>
-${cn || !isCN() ? "" : `<select style="width:auto" onchange="V.mode=this.value;R()"><option value="nhap"${V.mode == "nhap" ? " selected" : ""}>Nhập điểm theo môn</option><option value="tong"${V.mode == "tong" ? " selected" : ""}>Bảng tổng hợp</option></select>`}<span class="sp"></span>${pb}</div>`;
+${cn || !isCN() ? "" : `<select style="width:auto" onchange="V.mode=this.value;R()"><option value="nhap"${V.mode == "nhap" ? " selected" : ""}>Nhập điểm theo môn</option><option value="tong"${V.mode == "tong" ? " selected" : ""}>Bảng tổng hợp</option></select>`}<span class="sp"></span><button class="b g noprint" onclick="prD()">In trang này</button></div>`;
                 if (V.mode == "nhap") {
                     const m = V.mon;
                     return `<div class="card">${top}<div class="bar noprint"><select style="width:auto" onchange="V.mon=+this.value;R()">${S.subj.map((s, i) => (!isCN() && !S.mine.includes(i) ? "" : `<option value="${i}"${m == i ? " selected" : ""}>${esc(s)}</option>`)).join("")}</select><span class="mut">Điểm TX: nhập nhiều điểm, cách nhau bằng dấu phẩy. ĐTB = ${esc(S.f.mon)}</span></div>
-<div class="tw"><table><tr><th class="n">STT</th><th>Mã HS</th><th>Họ và tên</th><th>Điểm TX</th><th>Giữa kỳ</th><th>Cuối kỳ</th><th class="n">ĐTB môn</th></tr>${S.st
+<div class="tw scp"><table><tr><th class="n">STT</th><th class="noprint">Mã HS</th><th>Họ và tên</th><th>Điểm TX</th><th>Giữa kỳ</th><th>Cuối kỳ</th><th class="n">ĐTB môn</th></tr>${S.st
                         .map((s, i) => {
                             const o = sc(s.id, k, m);
-                            return `<tr><td class="n">${i + 1}</td><td>${esc(s.ma)}</td><td>${esc(s.ten)}</td><td><input class="${scc(avg(o.tx))}" value="${o.tx.join(", ")}" onchange="setSc('${s.id}','tx',this.value);cc(this)"></td><td><input class="${scc(o.gk)}" style="width:80px" value="${o.gk ?? ""}" onchange="setSc('${s.id}','gk',this.value);cc(this)"></td><td><input class="${scc(o.ck)}" style="width:80px" value="${o.ck ?? ""}" onchange="setSc('${s.id}','ck',this.value);cc(this)"></td><td class="n" id="d-${s.id}">${sg(D(s.id, k, m))}</td></tr>`;
+                            return `<tr><td class="n">${i + 1}</td><td class="noprint">${esc(s.ma)}</td><td>${esc(s.ten)}</td><td><input class="${scc(avg(o.tx))}" value="${o.tx.join(", ")}" onchange="setSc('${s.id}','tx',this.value);cc(this)"><span class="pr">${o.tx.join(", ")}</span></td><td><input class="${scc(o.gk)}" style="width:80px" value="${o.gk ?? ""}" onchange="setSc('${s.id}','gk',this.value);cc(this)"><span class="pr">${o.gk ?? ""}</span></td><td><input class="${scc(o.ck)}" style="width:80px" value="${o.ck ?? ""}" onchange="setSc('${s.id}','ck',this.value);cc(this)"><span class="pr">${o.ck ?? ""}</span></td><td class="n" id="d-${s.id}">${sg(D(s.id, k, m))}</td></tr>`;
                         })
                         .join("")}</table></div>
 ${impUI(m, k)}${fx()}${isCN() ? "" : "<!--"}<details class="noprint" style="margin-top:12px"><summary class="mut">Đổi danh sách môn học</summary><p class="mut">Giữ nguyên thứ tự để không lệch điểm. Hai môn đầu tiên là Toán và Ngữ văn (dùng để xếp loại).</p><input id="sj" value="${esc(S.subj.join(", "))}"><br><br><button class="b g" onclick="S.subj=$('#sj').value.split(',').map(x=>x.trim()).filter(Boolean);db(sb.from('classes').update({subjects:S.subj}).eq('id',S.id));R()">Lưu danh sách môn</button></details>${isCN() ? "" : "-->"}</div>`;
                 }
-                return `<div class="card">${head("BẢNG TỔNG HỢP KẾT QUẢ HỌC TẬP – " + { HK1: "HỌC KỲ 1", HK2: "HỌC KỲ 2", CN: "CẢ NĂM" }[k])}${top}<div class="tw"><table><tr><th class="n">STT</th><th>Mã HS</th><th>Họ và tên</th>${S.subj.map((s) => `<th class="n">${esc(s)}</th>`).join("")}<th class="n">ĐTBcm</th><th>Học tập</th><th>Rèn luyện</th></tr>
+                return `<div class="card">${head("BẢNG TỔNG HỢP KẾT QUẢ HỌC TẬP – " + { HK1: "HỌC KỲ 1", HK2: "HỌC KỲ 2", CN: "CẢ NĂM" }[k])}${top}<div class="tw scp"><table><tr><th class="n">STT</th><th class="noprint">Mã HS</th><th>Họ và tên</th>${S.subj.map((s) => `<th class="n">${esc(s)}</th>`).join("")}<th class="n">ĐTBcm</th><th>Học tập</th><th>Rèn luyện</th></tr>
 ${S.st
     .map(
         (s, i) =>
-            `<tr><td class="n">${i + 1}</td><td>${esc(s.ma)}</td><td>${esc(s.ten)}</td>${S.subj
+            `<tr><td class="n">${i + 1}</td><td class="noprint">${esc(s.ma)}</td><td>${esc(s.ten)}</td>${S.subj
                 .map((_, i) => {
                     const d = D(s.id, k, i);
                     return `<td class="n">${sg(d)}</td>`;
