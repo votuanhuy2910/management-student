@@ -118,7 +118,7 @@
                 font-weight: 700;
             }
             main {
-                max-width: 1100px;
+                max-width: 1300px;
                 margin: 0 auto;
                 padding: 18px 16px 40px;
             }
@@ -211,13 +211,14 @@
             }
             .form {
                 display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
                 gap: 8px;
                 margin-bottom: 10px;
             }
             label span {
                 display: block;
                 font-size: 12px;
+                margin: 5px 0;
                 color: var(--mut);
             }
             .tag {
@@ -354,10 +355,10 @@
             :root{--ok-bg:#e3f4ea;--warn-bg:#fcefcf;--red-bg:#fbe3e1;--pink:#b83280;--pink-bg:#fbe6f1;--info:#1f4e8c;--info-bg:#e1ebf9;--warn-tx:#8a5a0b}
             @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--ok-bg:#1c3a2b;--warn-bg:#3b2f14;--red-bg:#401f1e;--pink:#f08fc0;--pink-bg:#3c2032;--info:#8db8f0;--info-bg:#1f3350;--warn-tx:#e0aa4f;}}
             :root[data-theme="dark"]{--ok-bg:#1c3a2b;--warn-bg:#3b2f14;--red-bg:#401f1e;--pink:#f08fc0;--pink-bg:#3c2032;--info:#8db8f0;--info-bg:#1f3350;--warn-tx:#e0aa4f;}
-            .sg{display:inline-block;min-width:36px;padding:1px 8px;border-radius:10px;text-align:center;font-weight:700}
-            .sc-g{background:var(--ok-bg);color:var(--ok)}
-            .sc-y{background:var(--warn-bg);color:var(--warn-tx)}
-            .sc-r{background:var(--red-bg);color:var(--red)}
+            .sg{display:inline-block;min-width:50px;padding:5px 6px;border-radius:6px;text-align:center;font-weight:700}
+            .sc-g{background:var(--ok-bg);color:var(--ok);text-align:center}
+            .sc-y{background:var(--warn-bg);color:var(--warn-tx);text-align:center}
+            .sc-r{background:var(--red-bg);color:var(--red);text-align:center}
             input.sc-g,input.sc-y,input.sc-r{font-weight:600}
             .tag{border:1px solid transparent;font-weight:600}
             select.opt{font-weight:600}
@@ -774,7 +775,7 @@
             }
             function tGV() {
                 return `<div class="card"><h2>Mời giáo viên bộ môn</h2><p class="mut">Giáo viên đăng ký tài khoản trước, rồi thầy/cô nhập đúng email đó. Chọn các môn họ được nhập điểm. Mời lại cùng email để đổi môn.</p><label><span>Email giáo viên</span><input id="ge" type="email"></label><div class="bar" style="margin-top:8px">${S.subj.map((m, i) => `<label><input type="checkbox" class="gs" value="${i}" style="width:auto"> ${esc(m)}</label>`).join("")}</div><button class="b" onclick="inv()">Mời / cập nhật</button><p class="mut">${esc(V.gm || "")}</p></div>
-<div class="card"><h2>Thành viên lớp</h2><div class="tw"><table><tr><th>Email</th><th>Vai trò</th><th>Môn được nhập điểm</th><th>Mật khẩu</th><th></th></tr>${(V.mem || []).map((m, i) => `<tr><td>${esc(m.email)}</td><td>${m.role == "gvcn" ? "GVCN" : "GV bộ môn"}</td><td>${m.role == "gvcn" ? "Tất cả" : (m.subject_idx || []).map((i) => esc(S.subj[i] || "?")).join(", ") || "—"}</td><td><span class="mut" title="Mật khẩu được mã hóa một chiều, không thể xem">••••••••</span> <button class="b g" onclick="resetPw(${i})">Gửi link đặt lại</button></td><td>${m.role == "gvcn" ? "" : `<button class="b d" onclick="rmM('${m.user_id}')">Xóa</button>`}</td></tr>`).join("") || "<tr><td colspan=5>Đang tải…</td></tr>"}</table></div></div>`;
+<div class="card"><h2>Thành viên lớp</h2><div class="tw"><table><tr><th>Email</th><th>Vai trò</th><th>Môn được nhập điểm</th><th>Mật khẩu</th><th></th></tr>${(V.mem || []).map((m, i) => `<tr><td>${esc(m.email)}</td><td>${m.role == "gvcn" ? "GVCN" : "GV bộ môn"}</td><td>${m.role == "gvcn" ? "Tất cả" : (m.subject_idx || []).map((i) => esc(S.subj[i] || "?")).join(", ") || "—"}</td><td><span class="mut" style="margin-right:6px" title="Mật khẩu được mã hóa một chiều, không thể xem">••••••••</span> <button class="b g" onclick="resetPw(${i})">Gửi link đặt lại</button></td><td>${m.role == "gvcn" ? "" : `<button class="b d" onclick="rmM('${m.user_id}')">Xóa</button>`}</td></tr>`).join("") || "<tr><td colspan=5>Đang tải…</td></tr>"}</table></div></div>`;
             }
             function showAuth(m, note) {
                 $("#auth").style.display = "block";
@@ -1038,7 +1039,7 @@
             thmL();
             const impUI = (m, k) => {
                 const ok = V.smk == k + "|" + m;
-                return `<details class="noprint" style="margin-top:12px"${ok ? " open" : ""}><summary class="mut">Nhập điểm từ file Excel (.xlsx)</summary><p class="mut">Áp dụng cho môn <b>${esc(S.subj[m])}</b> – ${k == "HK1" ? "Học kỳ 1" : "Học kỳ 2"}. Dòng tiêu đề gồm: Mã (hoặc Họ và tên), Điểm TX (một hoặc nhiều cột bắt đầu bằng "TX"; nhiều điểm trong một ô cách nhau dấu phẩy), Giữa kỳ, Cuối kỳ. Ô trống sẽ giữ nguyên điểm cũ.</p><button class="b g" onclick="tplScore()">Tải file mẫu</button> <input type="file" accept=".xlsx,.xls" onchange="impScore(this)"><p class="mut">${ok ? V.sm || "" : ""}</p></details>`;
+                return `<details class="noprint" style="margin-top:12px"${ok ? " open" : ""}><summary class="mut">Nhập điểm từ file Excel (.xlsx)</summary><p class="mut">Áp dụng cho môn <b>${esc(S.subj[m])}</b> – ${k == "HK1" ? "Học kỳ 1" : "Học kỳ 2"}. Dòng tiêu đề gồm: Mã (hoặc Họ và tên), Điểm TX (một hoặc nhiều cột bắt đầu bằng "TX"; nhiều điểm trong một ô cách nhau dấu phẩy), Giữa kỳ, Cuối kỳ. Ô trống sẽ giữ nguyên điểm cũ.</p><div style="display: grid; grid-auto-columns: auto; grid-auto-flow: column; align-items: center; justify-content: stretch;"><button class="b g" onclick="tplScore()">Tải file mẫu</button> <input type="file" accept=".xlsx,.xls" onchange="impScore(this)"></div><p class="mut">${ok ? V.sm || "" : ""}</p></details>`;
             };
             function prD() {
                 const st = document.createElement("style");
@@ -1385,7 +1386,7 @@ ${cn || !isCN() ? "" : `<select style="width:auto" onchange="V.mode=this.value;R
 <div class="tw scp"><table><tr><th class="n">STT</th><th class="noprint">Mã HS</th><th>Họ và tên</th><th>Điểm TX</th><th>Giữa kỳ</th><th>Cuối kỳ</th><th class="n">ĐTB môn</th></tr>${S.st
                         .map((s, i) => {
                             const o = sc(s.id, k, m);
-                            return `<tr><td class="n">${i + 1}</td><td class="noprint">${esc(s.ma)}</td><td>${esc(s.ten)}</td><td><input class="${scc(avg(o.tx))}" value="${o.tx.join(", ")}" onchange="setSc('${s.id}','tx',this.value);cc(this)"><span class="pr">${o.tx.join(", ")}</span></td><td><input class="${scc(o.gk)}" style="width:80px" value="${o.gk ?? ""}" onchange="setSc('${s.id}','gk',this.value);cc(this)"><span class="pr">${o.gk ?? ""}</span></td><td><input class="${scc(o.ck)}" style="width:80px" value="${o.ck ?? ""}" onchange="setSc('${s.id}','ck',this.value);cc(this)"><span class="pr">${o.ck ?? ""}</span></td><td class="n" id="d-${s.id}">${sg(D(s.id, k, m))}</td></tr>`;
+                            return `<tr><td class="n">${i + 1}</td><td class="noprint">${esc(s.ma)}</td><td>${esc(s.ten)}</td><td><input class="${scc(avg(o.tx))}" value="${o.tx.join(", ")}" onchange="setSc('${s.id}','tx',this.value);cc(this)"><span class="pr">${o.tx.join(", ")}</span></td><td><input class="${scc(o.gk)}" style="width:50px" value="${o.gk ?? ""}" onchange="setSc('${s.id}','gk',this.value);cc(this)"><span class="pr">${o.gk ?? ""}</span></td><td><input class="${scc(o.ck)}" style="width:50px" value="${o.ck ?? ""}" onchange="setSc('${s.id}','ck',this.value);cc(this)"><span class="pr">${o.ck ?? ""}</span></td><td class="n" id="d-${s.id}">${sg(D(s.id, k, m))}</td></tr>`;
                         })
                         .join("")}</table></div>
 ${impUI(m, k)}${fx()}${isCN() ? "" : "<!--"}<details class="noprint" style="margin-top:12px"><summary class="mut">Đổi danh sách môn học</summary><p class="mut">Giữ nguyên thứ tự để không lệch điểm. Hai môn đầu tiên là Toán và Ngữ văn (dùng để xếp loại).</p><input id="sj" value="${esc(S.subj.join(", "))}"><br><br><button class="b g" onclick="S.subj=$('#sj').value.split(',').map(x=>x.trim()).filter(Boolean);db(sb.from('classes').update({subjects:S.subj}).eq('id',S.id));R()">Lưu danh sách môn</button></details>${isCN() ? "" : "-->"}</div>`;
