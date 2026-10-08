@@ -350,7 +350,25 @@
                     --mut: #333;
                 }
             }
+
+            :root{--ok-bg:#e3f4ea;--warn-bg:#fcefcf;--red-bg:#fbe3e1;--pink:#b83280;--pink-bg:#fbe6f1;--info:#1f4e8c;--info-bg:#e1ebf9;--warn-tx:#8a5a0b}
+            @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--ok-bg:#1c3a2b;--warn-bg:#3b2f14;--red-bg:#401f1e;--pink:#f08fc0;--pink-bg:#3c2032;--info:#8db8f0;--info-bg:#1f3350;--warn-tx:#e0aa4f;}}
+            :root[data-theme="dark"]{--ok-bg:#1c3a2b;--warn-bg:#3b2f14;--red-bg:#401f1e;--pink:#f08fc0;--pink-bg:#3c2032;--info:#8db8f0;--info-bg:#1f3350;--warn-tx:#e0aa4f;}
+            .sg{display:inline-block;min-width:36px;padding:1px 8px;border-radius:10px;text-align:center;font-weight:700}
+            .sc-g{background:var(--ok-bg);color:var(--ok)}
+            .sc-y{background:var(--warn-bg);color:var(--warn-tx)}
+            .sc-r{background:var(--red-bg);color:var(--red)}
+            input.sc-g,input.sc-y,input.sc-r{font-weight:600}
+            .tag{border:1px solid transparent;font-weight:600}
+            select.opt{font-weight:600}
+            .o-ok{background:var(--ok-bg);color:var(--ok);border-color:var(--ok)}
+            .o-warn{background:var(--warn-bg);color:var(--warn-tx);border-color:var(--warn)}
+            .o-bad{background:var(--red-bg);color:var(--red);border-color:var(--red)}
+            .o-info{background:var(--info-bg);color:var(--info);border-color:var(--info)}
+            .o-pink{background:var(--pink-bg);color:var(--pink);border-color:var(--pink)}
+            @media print{:root,:root[data-theme="dark"],:root:not([data-theme="light"]){--bg:#fff;--card:#fff;--ink:#000;--mut:#333;--line:#999;--soft:#eee}}
         </style>
+        <script>(function(){try{var t=localStorage.getItem("scn-theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}})()</script>
     </head>
     <body>
         <header class="noprint">
@@ -376,6 +394,7 @@
                 ><button class="b g" id="ac">Thêm lớp</button
                 ><button class="b d" id="dc">Xóa lớp</button
                 ><button class="b g" id="rf">Làm mới</button
+                ><button class="b g" id="th" onclick="thm()" title="Đổi giao diện sáng / tối"></button
                 ><span id="uc" class="user-chip"><span class="av" id="av"></span><span class="em" id="who"></span></span
                 ><button class="b g" id="lo">Đăng xuất</button>
             </div>
@@ -978,6 +997,88 @@
                 );
                 R();
             }
+            // ---- giao diện, màu điểm, nhập điểm Excel
+            const OC = { C: "ok", T: "warn", P: "info", K: "bad", Nam: "info", "Nữ": "pink", "Tốt": "ok", "Khá": "info", "Đạt": "warn", "Chưa đạt": "bad" };
+            const oc = (v) => (OC[v] ? "o-" + OC[v] : "");
+            const scc = (v) => (v == null ? "" : v >= 8 ? "sc-g" : v >= 5 ? "sc-y" : "sc-r");
+            const avg = (a) => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : null);
+            const sg = (v) => (v == null ? "—" : `<span class="sg ${scc(v)}">${v}</span>`);
+            function cc(el) {
+                const v = el.value.split(/[;\s]+|,(?=\s|\d{1,2}(?:[,;]|$))/).map((x) => parseFloat(x.replace(",", "."))).filter((x) => !isNaN(x));
+                el.className = scc(avg(v));
+            }
+            document.addEventListener("change", (e) => {
+                const t = e.target;
+                if (t.matches && t.matches("select.opt")) t.className = "opt " + oc(t.value);
+            });
+            function thmL() {
+                const c = document.documentElement.dataset.theme || "auto";
+                $("#th").textContent = { auto: "◐ Tự động", light: "☀ Sáng", dark: "☾ Tối" }[c];
+            }
+            function thm() {
+                const r = document.documentElement,
+                    n = { auto: "light", light: "dark", dark: "auto" }[r.dataset.theme || "auto"];
+                if (n == "auto") delete r.dataset.theme;
+                else r.dataset.theme = n;
+                try { localStorage.setItem("scn-theme", n); } catch (e) {}
+                thmL();
+            }
+            thmL();
+            const impUI = (m, k) => {
+                const ok = V.smk == k + "|" + m;
+                return `<details class="noprint" style="margin-top:12px"${ok ? " open" : ""}><summary class="mut">Nhập điểm từ file Excel (.xlsx)</summary><p class="mut">Áp dụng cho môn <b>${esc(S.subj[m])}</b> – ${k == "HK1" ? "Học kỳ 1" : "Học kỳ 2"}. Dòng tiêu đề gồm: Mã (hoặc Họ và tên), Điểm TX (một hoặc nhiều cột bắt đầu bằng "TX"; nhiều điểm trong một ô cách nhau dấu phẩy), Giữa kỳ, Cuối kỳ. Ô trống sẽ giữ nguyên điểm cũ.</p><button class="b g" onclick="tplScore()">Tải file mẫu</button> <input type="file" accept=".xlsx,.xls" onchange="impScore(this)"><p class="mut">${ok ? V.sm || "" : ""}</p></details>`;
+            };
+            function tplScore() {
+                if (!window.XLSX) return;
+                const k = V.hk, m = V.mon;
+                const rows = [["STT", "Mã", "Họ và tên", "Điểm TX", "Giữa kỳ", "Cuối kỳ"]].concat(
+                    S.st.map((s, i) => { const o = sc(s.id, k, m); return [i + 1, s.ma, s.ten, o.tx.join(", "), o.gk ?? "", o.ck ?? ""]; }),
+                );
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows), "Diem");
+                XLSX.writeFile(wb, "diem-" + S.subj[m] + "-" + k + ".xlsx");
+            }
+            function impScore(el) {
+                const f = el.files[0];
+                if (!f) return;
+                const k = V.hk, m = V.mon;
+                V.smk = k + "|" + m;
+                if (!window.XLSX) { V.sm = "Không tải được thư viện đọc Excel."; R(); return; }
+                const nz = (x) => String(x).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/\s+/g, " ").trim();
+                const pn = (x) => { x = parseFloat(String(x).replace(",", ".")); return isNaN(x) ? null : Math.min(10, Math.max(0, x)); };
+                const rd = new FileReader();
+                rd.onload = async (e) => {
+                    try {
+                        const wb = XLSX.read(e.target.result, { type: "array" });
+                        const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, raw: true, defval: "" });
+                        const hr = rows.findIndex((r) => r.some((c) => /ho.*ten|^ten$|^ma$|mshs/.test(nz(c))));
+                        if (hr < 0) { V.sm = 'Không thấy dòng tiêu đề (cần cột "Mã" hoặc "Họ và tên").'; R(); return; }
+                        const H = rows[hr].map(nz), col = (re) => H.findIndex((c) => re.test(c));
+                        const C = { ma: col(/^ma$|mshs/), ten: col(/ho.*ten|^ten$/), gk: col(/giua|^gk/), ck: col(/cuoi|^ck/) };
+                        const tx = H.map((c, i) => (/^(diem )?tx|thuong xuyen/.test(c) ? i : -1)).filter((i) => i >= 0);
+                        if (C.gk < 0 && C.ck < 0 && !tx.length) { V.sm = "Không thấy cột điểm (TX, Giữa kỳ, Cuối kỳ)."; R(); return; }
+                        let n = 0; const miss = [];
+                        for (const r of rows.slice(hr + 1)) {
+                            const ma = C.ma < 0 ? "" : String(r[C.ma]).trim(), ten = C.ten < 0 ? "" : nz(r[C.ten]);
+                            if (!ma && !ten) continue;
+                            const s = (ma && S.st.find((x) => String(x.ma) == ma)) || (ten && S.st.find((x) => nz(x.ten) == ten));
+                            if (!s) { miss.push(String(C.ten < 0 ? ma : r[C.ten])); continue; }
+                            const arr = [];
+                            tx.forEach((i) => { const v = r[i]; if (typeof v == "number") arr.push(pn(v)); else String(v).split(/[;\s]+|,(?=\s|\d{1,2}(?:[,;]|$))/).forEach((p) => arr.push(pn(p))); });
+                            const tv = arr.filter((x) => x != null);
+                            S.sc[k] ??= {}; S.sc[k][s.id] ??= {};
+                            const o = (S.sc[k][s.id][m] ??= { tx: [], gk: null, ck: null });
+                            if (tv.length) o.tx = tv;
+                            if (C.gk >= 0 && String(r[C.gk]).trim() !== "") o.gk = pn(r[C.gk]);
+                            if (C.ck >= 0 && String(r[C.ck]).trim() !== "") o.ck = pn(r[C.ck]);
+                            await upSc(s.id, k, o); n++;
+                        }
+                        V.sm = "Đã nhập điểm cho " + n + " học sinh." + (miss.length ? " Không khớp: " + miss.slice(0, 5).map(esc).join(", ") + (miss.length > 5 ? "…" : "") + "." : "");
+                    } catch (err) { V.sm = "Không đọc được file: " + err.message; }
+                    R();
+                };
+                rd.readAsArrayBuffer(f);
+            }
             // ---- nhập Excel
             function impX(el) {
                 const f = el.files[0];
@@ -1145,7 +1246,7 @@
             }
             const tg = (v) =>
                 v
-                    ? `<span class="tag t-${v.split(" ")[0]}">${v}</span>`
+                    ? `<span class="tag ${oc(v)}">${v}</span>`
                     : '<span class="mut">—</span>';
             const vnd = (n) => n.toLocaleString("vi-VN") + " đ";
             const fd = (d) => (d ? d.split("-").reverse().join("/") : "");
@@ -1189,9 +1290,9 @@
                 const e = S.st.find((s) => s.id == V.edit) || {};
                 const f = (k, l, t = "text") =>
                     `<label><span>${l}</span><input id="f${k}" type="${t}" value="${esc(e[k] || "")}"></label>`;
-                return `<div class="card noprint"><h2>${V.edit ? "Sửa hồ sơ" : "Thêm học sinh"}</h2><div class="form">${f("ma", "Mã học sinh")}${f("ten", "Họ và tên")}${f("ns", "Ngày sinh", "date")}<label><span>Giới tính</span><select id="fgt"><option${e.gt == "Nam" ? " selected" : ""}>Nam</option><option${e.gt == "Nữ" ? " selected" : ""}>Nữ</option></select></label>${f("ph", "Phụ huynh")}${f("sdt", "Số điện thoại")}${f("dc", "Địa chỉ")}</div><button class="b" onclick="saveHS()">${V.edit ? "Lưu thay đổi" : "Thêm học sinh"}</button> ${V.edit ? '<button class="b g" onclick="V.edit=null;R()">Hủy</button>' : ""}<hr style="border:0;border-top:1px solid var(--line);margin:14px 0"><h3 style="margin-top:0">Nhập danh sách từ file Excel (.xlsx)</h3><p class="mut">Dòng tiêu đề gồm các cột: Mã, Họ và tên, Ngày sinh, Giới tính, Phụ huynh, SĐT, Địa chỉ. Chỉ bắt buộc có cột Họ và tên. Học sinh trùng mã sẽ được cập nhật thay vì thêm mới.</p><input type="file" id="xf" accept=".xlsx,.xls" onchange="impX(this)"><p class="mut">${V.xm || ""}</p></div>
+                return `<div class="card noprint"><h2>${V.edit ? "Sửa hồ sơ" : "Thêm học sinh"}</h2><div class="form">${f("ma", "Mã học sinh")}${f("ten", "Họ và tên")}${f("ns", "Ngày sinh", "date")}<label><span>Giới tính</span><select id="fgt" class="opt ${oc(e.gt)}"><option${e.gt == "Nam" ? " selected" : ""}>Nam</option><option${e.gt == "Nữ" ? " selected" : ""}>Nữ</option></select></label>${f("ph", "Phụ huynh")}${f("sdt", "Số điện thoại")}${f("dc", "Địa chỉ")}</div><button class="b" onclick="saveHS()">${V.edit ? "Lưu thay đổi" : "Thêm học sinh"}</button> ${V.edit ? '<button class="b g" onclick="V.edit=null;R()">Hủy</button>' : ""}<hr style="border:0;border-top:1px solid var(--line);margin:14px 0"><h3 style="margin-top:0">Nhập danh sách từ file Excel (.xlsx)</h3><p class="mut">Dòng tiêu đề gồm các cột: Mã, Họ và tên, Ngày sinh, Giới tính, Phụ huynh, SĐT, Địa chỉ. Chỉ bắt buộc có cột Họ và tên. Học sinh trùng mã sẽ được cập nhật thay vì thêm mới.</p><input type="file" id="xf" accept=".xlsx,.xls" onchange="impX(this)"><p class="mut">${V.xm || ""}</p></div>
 <div class="card">${head("DANH SÁCH HỌC SINH")}<div class="bar noprint"><h2>Danh sách (${S.st.length} học sinh)</h2><span class="sp"></span>${pb}</div><div class="tw"><table><tr><th class="n">STT</th><th>Mã</th><th>Họ và tên</th><th>Ngày sinh</th><th>Giới</th><th>Phụ huynh</th><th>SĐT</th><th>Địa chỉ</th><th class="noprint"></th></tr>
-${S.st.map((s, i) => `<tr><td class="n">${i + 1}</td><td>${esc(s.ma)}</td><td>${esc(s.ten)}</td><td>${fd(s.ns)}</td><td>${s.gt}</td><td>${esc(s.ph)}</td><td>${esc(s.sdt)}</td><td>${esc(s.dc)}</td><td class="noprint" style="white-space:nowrap"><button class="b g" onclick="V.edit='${s.id}';R();scrollTo(0,0)">Sửa</button> <button class="b d" onclick="delHS('${s.id}')">${V.del == s.id ? "Bấm lại để xóa" : "Xóa"}</button></td></tr>`).join("") || "<tr><td colspan=9>Chưa có học sinh. Nhập thông tin ở trên để thêm.</td></tr>"}</table></div></div>`;
+${S.st.map((s, i) => `<tr><td class="n">${i + 1}</td><td>${esc(s.ma)}</td><td>${esc(s.ten)}</td><td>${fd(s.ns)}</td><td><span class="tag ${oc(s.gt)}">${s.gt}</span></td><td>${esc(s.ph)}</td><td>${esc(s.sdt)}</td><td>${esc(s.dc)}</td><td class="noprint" style="white-space:nowrap"><button class="b g" onclick="V.edit='${s.id}';R();scrollTo(0,0)">Sửa</button> <button class="b d" onclick="delHS('${s.id}')">${V.del == s.id ? "Bấm lại để xóa" : "Xóa"}</button></td></tr>`).join("") || "<tr><td colspan=9>Chưa có học sinh. Nhập thông tin ở trên để thêm.</td></tr>"}</table></div></div>`;
             }
             async function saveHS() {
                 const g = (k) => $("#f" + k).value.trim();
@@ -1261,26 +1362,26 @@ ${cn || !isCN() ? "" : `<select style="width:auto" onchange="V.mode=this.value;R
                 if (V.mode == "nhap") {
                     const m = V.mon;
                     return `<div class="card">${top}<div class="bar noprint"><select style="width:auto" onchange="V.mon=+this.value;R()">${S.subj.map((s, i) => (!isCN() && !S.mine.includes(i) ? "" : `<option value="${i}"${m == i ? " selected" : ""}>${esc(s)}</option>`)).join("")}</select><span class="mut">Điểm TX: nhập nhiều điểm, cách nhau bằng dấu phẩy. ĐTB = ${esc(S.f.mon)}</span></div>
-<div class="tw"><table><tr><th>Họ và tên</th><th>Điểm TX</th><th>Giữa kỳ</th><th>Cuối kỳ</th><th class="n">ĐTB môn</th></tr>${S.st
-                        .map((s) => {
+<div class="tw"><table><tr><th class="n">STT</th><th>Mã HS</th><th>Họ và tên</th><th>Điểm TX</th><th>Giữa kỳ</th><th>Cuối kỳ</th><th class="n">ĐTB môn</th></tr>${S.st
+                        .map((s, i) => {
                             const o = sc(s.id, k, m);
-                            return `<tr><td>${esc(s.ten)}</td><td><input value="${o.tx.join(", ")}" onchange="setSc('${s.id}','tx',this.value)"></td><td><input style="width:80px" value="${o.gk ?? ""}" onchange="setSc('${s.id}','gk',this.value)"></td><td><input style="width:80px" value="${o.ck ?? ""}" onchange="setSc('${s.id}','ck',this.value)"></td><td class="n" id="d-${s.id}"><b>${D(s.id, k, m) ?? "—"}</b></td></tr>`;
+                            return `<tr><td class="n">${i + 1}</td><td>${esc(s.ma)}</td><td>${esc(s.ten)}</td><td><input class="${scc(avg(o.tx))}" value="${o.tx.join(", ")}" onchange="setSc('${s.id}','tx',this.value);cc(this)"></td><td><input class="${scc(o.gk)}" style="width:80px" value="${o.gk ?? ""}" onchange="setSc('${s.id}','gk',this.value);cc(this)"></td><td><input class="${scc(o.ck)}" style="width:80px" value="${o.ck ?? ""}" onchange="setSc('${s.id}','ck',this.value);cc(this)"></td><td class="n" id="d-${s.id}">${sg(D(s.id, k, m))}</td></tr>`;
                         })
                         .join("")}</table></div>
-${fx()}${isCN() ? "" : "<!--"}<details class="noprint" style="margin-top:12px"><summary class="mut">Đổi danh sách môn học</summary><p class="mut">Giữ nguyên thứ tự để không lệch điểm. Hai môn đầu tiên là Toán và Ngữ văn (dùng để xếp loại).</p><input id="sj" value="${esc(S.subj.join(", "))}"><br><br><button class="b g" onclick="S.subj=$('#sj').value.split(',').map(x=>x.trim()).filter(Boolean);db(sb.from('classes').update({subjects:S.subj}).eq('id',S.id));R()">Lưu danh sách môn</button></details>${isCN() ? "" : "-->"}</div>`;
+${impUI(m, k)}${fx()}${isCN() ? "" : "<!--"}<details class="noprint" style="margin-top:12px"><summary class="mut">Đổi danh sách môn học</summary><p class="mut">Giữ nguyên thứ tự để không lệch điểm. Hai môn đầu tiên là Toán và Ngữ văn (dùng để xếp loại).</p><input id="sj" value="${esc(S.subj.join(", "))}"><br><br><button class="b g" onclick="S.subj=$('#sj').value.split(',').map(x=>x.trim()).filter(Boolean);db(sb.from('classes').update({subjects:S.subj}).eq('id',S.id));R()">Lưu danh sách môn</button></details>${isCN() ? "" : "-->"}</div>`;
                 }
-                return `<div class="card">${head("BẢNG TỔNG HỢP KẾT QUẢ HỌC TẬP – " + { HK1: "HỌC KỲ 1", HK2: "HỌC KỲ 2", CN: "CẢ NĂM" }[k])}${top}<div class="tw"><table><tr><th>Họ và tên</th>${S.subj.map((s) => `<th class="n">${esc(s)}</th>`).join("")}<th class="n">ĐTBcm</th><th>Học tập</th><th>Rèn luyện</th></tr>
+                return `<div class="card">${head("BẢNG TỔNG HỢP KẾT QUẢ HỌC TẬP – " + { HK1: "HỌC KỲ 1", HK2: "HỌC KỲ 2", CN: "CẢ NĂM" }[k])}${top}<div class="tw"><table><tr><th class="n">STT</th><th>Mã HS</th><th>Họ và tên</th>${S.subj.map((s) => `<th class="n">${esc(s)}</th>`).join("")}<th class="n">ĐTBcm</th><th>Học tập</th><th>Rèn luyện</th></tr>
 ${S.st
     .map(
-        (s) =>
-            `<tr><td>${esc(s.ten)}</td>${S.subj
+        (s, i) =>
+            `<tr><td class="n">${i + 1}</td><td>${esc(s.ma)}</td><td>${esc(s.ten)}</td>${S.subj
                 .map((_, i) => {
                     const d = D(s.id, k, i);
-                    return `<td class="n"${d != null && d < 5 ? ' style="color:var(--red)"' : ""}>${d ?? "—"}</td>`;
+                    return `<td class="n">${sg(d)}</td>`;
                 })
                 .join(
                     "",
-                )}<td class="n"><b>${cm(s.id, k) ?? "—"}</b></td><td>${tg(hl(s.id, k))}</td><td><select onchange="setHK('${k}','${s.id}',this.value)"><option value="">—</option>${LV.map((l) => `<option${(S.hk[k] || {})[s.id] == l ? " selected" : ""}>${l}</option>`).join("")}</select></td></tr>`,
+                )}<td class="n">${sg(cm(s.id, k))}</td><td>${tg(hl(s.id, k))}</td><td><select class="opt ${oc((S.hk[k] || {})[s.id])}" onchange="setHK('${k}','${s.id}',this.value)"><option value="">—</option>${LV.map((l) => `<option${(S.hk[k] || {})[s.id] == l ? " selected" : ""}>${l}</option>`).join("")}</select></td></tr>`,
     )
     .join("")}</table></div>
 ${fx()}<p class="mut">Học tập xếp loại tự động theo Thông tư 22/2021 (Tốt / Khá / Đạt / Chưa đạt), áp dụng cho môn đánh giá bằng điểm. Rèn luyện do GVCN chọn.</p></div>`;
@@ -1306,7 +1407,7 @@ ${fx()}<p class="mut">Học tập xếp loại tự động theo Thông tư 22/2
                 else o[f] = v.trim() === "" ? null : n(v);
                 upSc(id, k, o);
                 $("#d-" + id).innerHTML =
-                    "<b>" + (D(id, k, V.mon) ?? "—") + "</b>";
+                    sg(D(id, k, V.mon));
             }
             function tDD() {
                 const day = S.att[V.date];
@@ -1314,7 +1415,7 @@ ${fx()}<p class="mut">Học tập xếp loại tự động theo Thông tư 22/2
 <div class="tw"><table><tr><th class="n">STT</th><th>Họ và tên</th><th>Tình trạng</th></tr>${S.st
                     .map(
                         (s, i) =>
-                            `<tr><td class="n">${i + 1}</td><td>${esc(s.ten)}</td><td><select onchange="setAtt('${s.id}',this.value)">${Object.entries(
+                            `<tr><td class="n">${i + 1}</td><td>${esc(s.ten)}</td><td><select class="opt ${oc((day || {})[s.id] || "C")}" onchange="setAtt('${s.id}',this.value)">${Object.entries(
                                 ATT,
                             )
                                 .map(
