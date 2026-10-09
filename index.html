@@ -2,12 +2,17 @@
 <html lang="vi">
     <head>
         <meta charset="utf-8" />
+        <link
+            rel="icon"
+            type="image/x-icon"
+            href="/favicon/favicon-96x96.png"
+        />
         <meta
             name="viewport"
             content="width=device-width, initial-scale=1, viewport-fit=cover"
         />
         <meta name="theme-color" content="#e3f5ee" />
-        <title>Sổ chủ nhiệm</title>
+        <title>Sổ chủ nhiệm THCS-THPT Phan Châu Trinh</title>
         <link
             rel="stylesheet"
             href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap"
@@ -160,9 +165,21 @@
                 z-index: -1;
                 pointer-events: none;
                 background:
-                    radial-gradient(46vmax 46vmax at 8% 6%, var(--o1), transparent 62%),
-                    radial-gradient(42vmax 42vmax at 96% 18%, var(--o2), transparent 60%),
-                    radial-gradient(50vmax 50vmax at 60% 104%, var(--o3), transparent 62%);
+                    radial-gradient(
+                        46vmax 46vmax at 8% 6%,
+                        var(--o1),
+                        transparent 62%
+                    ),
+                    radial-gradient(
+                        42vmax 42vmax at 96% 18%,
+                        var(--o2),
+                        transparent 60%
+                    ),
+                    radial-gradient(
+                        50vmax 50vmax at 60% 104%,
+                        var(--o3),
+                        transparent 62%
+                    );
             }
             ::selection {
                 background: var(--pri-2);
@@ -183,7 +200,8 @@
                 box-shadow: var(--glass-shadow);
             }
             @supports not (
-                (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+                (backdrop-filter: blur(1px)) or
+                    (-webkit-backdrop-filter: blur(1px))
             ) {
                 header,
                 .card {
@@ -397,11 +415,11 @@
                 padding: 6px 10px;
                 text-align: left;
                 vertical-align: middle;
-		text-transform: capitalize;
+                text-transform: capitalize;
             }
-	td.email {
-		text-transform: none;
-		}
+            td.email {
+                text-transform: none;
+            }
             th:last-child,
             td:last-child {
                 border-right: 0;
@@ -592,10 +610,10 @@
             select.opt {
                 font-weight: 400;
             }
-	/* cột Rèn luyện: đủ rộng để hiện "Chưa đạt" */
-	select.opt[onchange^="setHK"] {
-    		min-width: 118px;
-	}
+            /* cột Rèn luyện: đủ rộng để hiện "Chưa đạt" */
+            select.opt[onchange^="setHK"] {
+                min-width: 118px;
+            }
             .o-ok {
                 background: var(--ok-bg);
                 color: var(--ok);
@@ -786,7 +804,15 @@
                 }
             }
         </style>
-        <script>(function(){try{var t=localStorage.getItem("scn-theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}})()</script>
+        <script>
+            (function () {
+                try {
+                    var t = localStorage.getItem("scn-theme");
+                    if (t === "light" || t === "dark")
+                        document.documentElement.dataset.theme = t;
+                } catch (e) {}
+            })();
+        </script>
     </head>
     <body>
         <header class="noprint">
@@ -812,24 +838,27 @@
                 ><button class="b g" id="ac">Thêm lớp</button
                 ><button class="b d" id="dc">Xóa lớp</button
                 ><button class="b g" id="rf">Làm mới</button
-                ><button class="b g" id="th" onclick="thm()" title="Đổi giao diện sáng / tối"></button
-                ><span id="uc" class="user-chip"><span class="av" id="av"></span><span class="em" id="who"></span></span
+                ><button
+                    class="b g"
+                    id="th"
+                    onclick="thm()"
+                    title="Đổi giao diện sáng / tối"
+                ></button
+                ><span id="uc" class="user-chip"
+                    ><span class="av" id="av"></span
+                    ><span class="em" id="who"></span></span
                 ><button class="b g" id="lo">Đăng xuất</button>
             </div>
             <nav id="nav"></nav>
         </header>
-        <div
-            id="auth"
-            class="noprint">
+        <div id="auth" class="noprint">
             <div
                 class="card"
                 style="max-width: 420px; margin: 6vh auto"
                 id="ab"
             ></div>
         </div>
-        <div
-            id="msg"
-            role="status"></div>
+        <div id="msg" role="status"></div>
         <main id="app"></main>
         <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
         <script src="config.js"></script>
@@ -1167,8 +1196,8 @@
                     m == "cfg"
                         ? `<h2>Kết nối Supabase</h2><label><span>Project URL</span><input id="au" value="${esc(c.url || "")}" placeholder="https://zraipwtiielegxbzrecy.supabase.co/"></label><br><label><span>Publishable key (sb_publishable_… hoặc anon)</span><input id="ak" value="${esc(c.key || "")}"></label><p class="mut">Không dán secret key hoặc service_role.</p><p class="neg">${esc(note || "")}</p><button class="b" onclick="saveCfg()">Lưu và tiếp tục</button>`
                         : m == "reset"
-                        ? `<h2>Đặt mật khẩu mới</h2><label><span>Mật khẩu mới (từ 6 ký tự)</span><input id="np" type="password"></label><p class="neg">${esc(note || "")}</p><button class="b" onclick="setPw()">Lưu mật khẩu</button>`
-                        : `<h2>Đăng nhập Sổ chủ nhiệm</h2><label><span>Email</span><input id="ae" type="email"></label><br><label><span>Mật khẩu (từ 6 ký tự)</span><input id="ap" type="password"></label><p class="neg">${esc(note || "")}</p><button class="b" onclick="auth(0)">Đăng nhập</button> <button class="b g" onclick="auth(1)">Đăng ký</button> ${ENV() ? "" : `<button class="b g" onclick="showAuth('cfg')">Đổi kết nối</button>`}`;
+                          ? `<h2>Đặt mật khẩu mới</h2><label><span>Mật khẩu mới (từ 6 ký tự)</span><input id="np" type="password"></label><p class="neg">${esc(note || "")}</p><button class="b" onclick="setPw()">Lưu mật khẩu</button>`
+                          : `<h2>Đăng nhập Sổ chủ nhiệm</h2><label><span>Email</span><input id="ae" type="email"></label><br><label><span>Mật khẩu (từ 6 ký tự)</span><input id="ap" type="password"></label><p class="neg">${esc(note || "")}</p><button class="b" onclick="auth(0)">Đăng nhập</button> <button class="b g" onclick="auth(1)">Đăng ký</button> ${ENV() ? "" : `<button class="b g" onclick="showAuth('cfg')">Đổi kết nối</button>`}`;
             }
             function nu(r) {
                 try {
@@ -1222,7 +1251,11 @@
                     return;
                 }
                 REC = false;
-                history.replaceState(null, "", location.pathname + location.search);
+                history.replaceState(
+                    null,
+                    "",
+                    location.pathname + location.search,
+                );
                 const { data } = await sb.auth.getSession();
                 USER = data.session.user;
                 await start();
@@ -1392,41 +1425,80 @@
                 R();
             }
             // ---- giao diện, màu điểm, nhập điểm Excel
-            const OC = { C: "ok", T: "warn", P: "info", K: "bad", Nam: "info", "Nữ": "pink", "Tốt": "ok", "Khá": "info", "Đạt": "warn", "Chưa đạt": "bad" };
+            const OC = {
+                C: "ok",
+                T: "warn",
+                P: "info",
+                K: "bad",
+                Nam: "info",
+                Nữ: "pink",
+                Tốt: "ok",
+                Khá: "info",
+                Đạt: "warn",
+                "Chưa đạt": "bad",
+            };
             const oc = (v) => (OC[v] ? "o-" + OC[v] : "");
-            const scc = (v) => (v == null ? "" : v >= 8 ? "sc-g" : v >= 5 ? "sc-y" : "sc-r");
-            const avg = (a) => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : null);
-            const sg = (v) => (v == null ? "—" : `<span class="sg ${scc(v)}">${v}</span>`);
+            const scc = (v) =>
+                v == null ? "" : v >= 8 ? "sc-g" : v >= 5 ? "sc-y" : "sc-r";
+            const avg = (a) =>
+                a.length ? a.reduce((x, y) => x + y, 0) / a.length : null;
+            const sg = (v) =>
+                v == null ? "—" : `<span class="sg ${scc(v)}">${v}</span>`;
             function cc(el) {
-                const v = el.value.split(/[;\s]+|,(?=\s|\d{1,2}(?:[,;]|$))/).map((x) => parseFloat(x.replace(",", "."))).filter((x) => !isNaN(x));
+                const v = el.value
+                    .split(/[;\s]+|,(?=\s|\d{1,2}(?:[,;]|$))/)
+                    .map((x) => parseFloat(x.replace(",", ".")))
+                    .filter((x) => !isNaN(x));
                 el.className = scc(avg(v));
                 const n = el.nextElementSibling;
-                if (n && n.classList.contains("pr")) { n.textContent = el.value; n.className = "pr " + el.className; }
+                if (n && n.classList.contains("pr")) {
+                    n.textContent = el.value;
+                    n.className = "pr " + el.className;
+                }
             }
             document.addEventListener("change", (e) => {
                 const t = e.target;
-                if (t.matches && t.matches("select.opt")) t.className = "opt " + oc(t.value);
+                if (t.matches && t.matches("select.opt"))
+                    t.className = "opt " + oc(t.value);
             });
             function thmL() {
                 const c = document.documentElement.dataset.theme || "auto";
-                $("#th").textContent = { auto: "◐ Tự động", light: "☀ Sáng", dark: "☾ Tối" }[c];
-                const dk = c == "dark" || (c == "auto" && matchMedia("(prefers-color-scheme: dark)").matches);
+                $("#th").textContent = {
+                    auto: "◐ Tự động",
+                    light: "☀ Sáng",
+                    dark: "☾ Tối",
+                }[c];
+                const dk =
+                    c == "dark" ||
+                    (c == "auto" &&
+                        matchMedia("(prefers-color-scheme: dark)").matches);
                 const mt = document.querySelector('meta[name="theme-color"]');
                 if (mt) mt.content = dk ? "#06130f" : "#e3f5ee";
             }
             function thm() {
                 const r = document.documentElement,
-                    n = { auto: "light", light: "dark", dark: "auto" }[r.dataset.theme || "auto"];
+                    n = { auto: "light", light: "dark", dark: "auto" }[
+                        r.dataset.theme || "auto"
+                    ];
                 if (n == "auto") delete r.dataset.theme;
                 else r.dataset.theme = n;
-                try { localStorage.setItem("scn-theme", n); } catch (e) {}
+                try {
+                    localStorage.setItem("scn-theme", n);
+                } catch (e) {}
                 thmL();
             }
             thmL();
-            matchMedia("(prefers-color-scheme: dark)").addEventListener("change", thmL);
+            matchMedia("(prefers-color-scheme: dark)").addEventListener(
+                "change",
+                thmL,
+            );
             (function () {
                 const h = document.querySelector("header");
-                const set = () => document.documentElement.style.setProperty("--hh", h.offsetHeight + "px");
+                const set = () =>
+                    document.documentElement.style.setProperty(
+                        "--hh",
+                        h.offsetHeight + "px",
+                    );
                 set();
                 if (window.ResizeObserver) new ResizeObserver(set).observe(h);
                 else addEventListener("resize", set);
@@ -1437,59 +1509,159 @@
             };
             function prD() {
                 const st = document.createElement("style");
-                st.textContent = "@page{size:A4 " + (V.mode == "tong" ? "landscape" : "portrait") + ";margin:12mm}";
+                st.textContent =
+                    "@page{size:A4 " +
+                    (V.mode == "tong" ? "landscape" : "portrait") +
+                    ";margin:12mm}";
                 document.head.appendChild(st);
-                const done = () => { st.remove(); removeEventListener("afterprint", done); };
+                const done = () => {
+                    st.remove();
+                    removeEventListener("afterprint", done);
+                };
                 addEventListener("afterprint", done);
                 window.print();
             }
             function tplScore() {
                 if (!window.XLSX) return;
-                const k = V.hk, m = V.mon;
-                const rows = [["STT", "Mã", "Họ và tên", "Điểm TX", "Giữa kỳ", "Cuối kỳ"]].concat(
-                    S.st.map((s, i) => { const o = sc(s.id, k, m); return [i + 1, s.ma, s.ten, o.tx.join(", "), o.gk ?? "", o.ck ?? ""]; }),
+                const k = V.hk,
+                    m = V.mon;
+                const rows = [
+                    ["STT", "Mã", "Họ và tên", "Điểm TX", "Giữa kỳ", "Cuối kỳ"],
+                ].concat(
+                    S.st.map((s, i) => {
+                        const o = sc(s.id, k, m);
+                        return [
+                            i + 1,
+                            s.ma,
+                            s.ten,
+                            o.tx.join(", "),
+                            o.gk ?? "",
+                            o.ck ?? "",
+                        ];
+                    }),
                 );
                 const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows), "Diem");
+                XLSX.utils.book_append_sheet(
+                    wb,
+                    XLSX.utils.aoa_to_sheet(rows),
+                    "Diem",
+                );
                 XLSX.writeFile(wb, "diem-" + S.subj[m] + "-" + k + ".xlsx");
             }
             function impScore(el) {
                 const f = el.files[0];
                 if (!f) return;
-                const k = V.hk, m = V.mon;
+                const k = V.hk,
+                    m = V.mon;
                 V.smk = k + "|" + m;
-                if (!window.XLSX) { V.sm = "Không tải được thư viện đọc Excel."; R(); return; }
-                const nz = (x) => String(x).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/\s+/g, " ").trim();
-                const pn = (x) => { x = parseFloat(String(x).replace(",", ".")); return isNaN(x) ? null : Math.min(10, Math.max(0, x)); };
+                if (!window.XLSX) {
+                    V.sm = "Không tải được thư viện đọc Excel.";
+                    R();
+                    return;
+                }
+                const nz = (x) =>
+                    String(x)
+                        .toLowerCase()
+                        .normalize("NFD")
+                        .replace(/[\u0300-\u036f]/g, "")
+                        .replace(/đ/g, "d")
+                        .replace(/\s+/g, " ")
+                        .trim();
+                const pn = (x) => {
+                    x = parseFloat(String(x).replace(",", "."));
+                    return isNaN(x) ? null : Math.min(10, Math.max(0, x));
+                };
                 const rd = new FileReader();
                 rd.onload = async (e) => {
                     try {
-                        const wb = XLSX.read(e.target.result, { type: "array" });
-                        const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, raw: true, defval: "" });
-                        const hr = rows.findIndex((r) => r.some((c) => /ho.*ten|^ten$|^ma$|mshs/.test(nz(c))));
-                        if (hr < 0) { V.sm = 'Không thấy dòng tiêu đề (cần cột "Mã" hoặc "Họ và tên").'; R(); return; }
-                        const H = rows[hr].map(nz), col = (re) => H.findIndex((c) => re.test(c));
-                        const C = { ma: col(/^ma$|mshs/), ten: col(/ho.*ten|^ten$/), gk: col(/giua|^gk/), ck: col(/cuoi|^ck/) };
-                        const tx = H.map((c, i) => (/^(diem )?tx|thuong xuyen/.test(c) ? i : -1)).filter((i) => i >= 0);
-                        if (C.gk < 0 && C.ck < 0 && !tx.length) { V.sm = "Không thấy cột điểm (TX, Giữa kỳ, Cuối kỳ)."; R(); return; }
-                        let n = 0; const miss = [];
-                        for (const r of rows.slice(hr + 1)) {
-                            const ma = C.ma < 0 ? "" : String(r[C.ma]).trim(), ten = C.ten < 0 ? "" : nz(r[C.ten]);
-                            if (!ma && !ten) continue;
-                            const s = (ma && S.st.find((x) => String(x.ma) == ma)) || (ten && S.st.find((x) => nz(x.ten) == ten));
-                            if (!s) { miss.push(String(C.ten < 0 ? ma : r[C.ten])); continue; }
-                            const arr = [];
-                            tx.forEach((i) => { const v = r[i]; if (typeof v == "number") arr.push(pn(v)); else String(v).split(/[;\s]+|,(?=\s|\d{1,2}(?:[,;]|$))/).forEach((p) => arr.push(pn(p))); });
-                            const tv = arr.filter((x) => x != null);
-                            S.sc[k] ??= {}; S.sc[k][s.id] ??= {};
-                            const o = (S.sc[k][s.id][m] ??= { tx: [], gk: null, ck: null });
-                            if (tv.length) o.tx = tv;
-                            if (C.gk >= 0 && String(r[C.gk]).trim() !== "") o.gk = pn(r[C.gk]);
-                            if (C.ck >= 0 && String(r[C.ck]).trim() !== "") o.ck = pn(r[C.ck]);
-                            await upSc(s.id, k, o); n++;
+                        const wb = XLSX.read(e.target.result, {
+                            type: "array",
+                        });
+                        const rows = XLSX.utils.sheet_to_json(
+                            wb.Sheets[wb.SheetNames[0]],
+                            { header: 1, raw: true, defval: "" },
+                        );
+                        const hr = rows.findIndex((r) =>
+                            r.some((c) =>
+                                /ho.*ten|^ten$|^ma$|mshs/.test(nz(c)),
+                            ),
+                        );
+                        if (hr < 0) {
+                            V.sm =
+                                'Không thấy dòng tiêu đề (cần cột "Mã" hoặc "Họ và tên").';
+                            R();
+                            return;
                         }
-                        V.sm = "Đã nhập điểm cho " + n + " học sinh." + (miss.length ? " Không khớp: " + miss.slice(0, 5).map(esc).join(", ") + (miss.length > 5 ? "…" : "") + "." : "");
-                    } catch (err) { V.sm = "Không đọc được file: " + err.message; }
+                        const H = rows[hr].map(nz),
+                            col = (re) => H.findIndex((c) => re.test(c));
+                        const C = {
+                            ma: col(/^ma$|mshs/),
+                            ten: col(/ho.*ten|^ten$/),
+                            gk: col(/giua|^gk/),
+                            ck: col(/cuoi|^ck/),
+                        };
+                        const tx = H.map((c, i) =>
+                            /^(diem )?tx|thuong xuyen/.test(c) ? i : -1,
+                        ).filter((i) => i >= 0);
+                        if (C.gk < 0 && C.ck < 0 && !tx.length) {
+                            V.sm =
+                                "Không thấy cột điểm (TX, Giữa kỳ, Cuối kỳ).";
+                            R();
+                            return;
+                        }
+                        let n = 0;
+                        const miss = [];
+                        for (const r of rows.slice(hr + 1)) {
+                            const ma = C.ma < 0 ? "" : String(r[C.ma]).trim(),
+                                ten = C.ten < 0 ? "" : nz(r[C.ten]);
+                            if (!ma && !ten) continue;
+                            const s =
+                                (ma && S.st.find((x) => String(x.ma) == ma)) ||
+                                (ten && S.st.find((x) => nz(x.ten) == ten));
+                            if (!s) {
+                                miss.push(String(C.ten < 0 ? ma : r[C.ten]));
+                                continue;
+                            }
+                            const arr = [];
+                            tx.forEach((i) => {
+                                const v = r[i];
+                                if (typeof v == "number") arr.push(pn(v));
+                                else
+                                    String(v)
+                                        .split(
+                                            /[;\s]+|,(?=\s|\d{1,2}(?:[,;]|$))/,
+                                        )
+                                        .forEach((p) => arr.push(pn(p)));
+                            });
+                            const tv = arr.filter((x) => x != null);
+                            S.sc[k] ??= {};
+                            S.sc[k][s.id] ??= {};
+                            const o = (S.sc[k][s.id][m] ??= {
+                                tx: [],
+                                gk: null,
+                                ck: null,
+                            });
+                            if (tv.length) o.tx = tv;
+                            if (C.gk >= 0 && String(r[C.gk]).trim() !== "")
+                                o.gk = pn(r[C.gk]);
+                            if (C.ck >= 0 && String(r[C.ck]).trim() !== "")
+                                o.ck = pn(r[C.ck]);
+                            await upSc(s.id, k, o);
+                            n++;
+                        }
+                        V.sm =
+                            "Đã nhập điểm cho " +
+                            n +
+                            " học sinh." +
+                            (miss.length
+                                ? " Không khớp: " +
+                                  miss.slice(0, 5).map(esc).join(", ") +
+                                  (miss.length > 5 ? "…" : "") +
+                                  "."
+                                : "");
+                    } catch (err) {
+                        V.sm = "Không đọc được file: " + err.message;
+                    }
                     R();
                 };
                 rd.readAsArrayBuffer(f);
@@ -1684,7 +1856,9 @@
                     k,
                     t,
                     rate: n
-                        ? Math.round(((n - p - k - t * (1 - LATE_W)) * 1000) / n) / 10
+                        ? Math.round(
+                              ((n - p - k - t * (1 - LATE_W)) * 1000) / n,
+                          ) / 10
                         : null,
                 };
             }
@@ -1821,8 +1995,7 @@ ${fx()}<p class="mut">Học tập xếp loại tự động theo Thông tư 22/2
                         .filter((x) => x != null);
                 else o[f] = v.trim() === "" ? null : n(v);
                 upSc(id, k, o);
-                $("#d-" + id).innerHTML =
-                    sg(D(id, k, V.mon));
+                $("#d-" + id).innerHTML = sg(D(id, k, V.mon));
             }
             function tDD() {
                 const day = S.att[V.date];
@@ -1965,7 +2138,8 @@ ${fx()}<p class="mut">Học tập xếp loại tự động theo Thông tư 22/2
                     lt = as.reduce((a, x) => a + x.t, 0),
                     kp = as.reduce((a, x) => a + x.k, 0);
                 const rate = tn
-                    ? Math.round(((tn - ab - lt * (1 - LATE_W)) * 1000) / tn) / 10
+                    ? Math.round(((tn - ab - lt * (1 - LATE_W)) * 1000) / tn) /
+                      10
                     : null;
                 const so = [...mon].sort((a, b) => b[1] - a[1]);
                 const warn = S.st.filter(
